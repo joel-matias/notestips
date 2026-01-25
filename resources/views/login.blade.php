@@ -1,12 +1,11 @@
 @extends('layout.app')
 
-@section('title', 'Registro | NotesTips')
+@section('title', 'Login | NoteTips')
 
 @section('main-content')
     <main class="min-h-screen flex items-center justify-center p-4 bg-(--color-bg)">
         <section class="w-full max-w-md" aria-labelledby="page-title">
             <div class="rounded-2xl shadow-lg p-8 bg-(--color-surface) border border-(--color-border)">
-
                 <header class="text-center mb-8">
                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 bg-(--color-primary)"
                         aria-hidden="true">
@@ -22,14 +21,29 @@
                     </div>
 
                     <h1 id="page-title" class="text-3xl mb-2 text-(--color-text)">Mis Notas</h1>
-                    <p class="text-(--color-text-muted)">Crea tu cuenta para empezar a organizar tus notas</p>
+                    <p class="text-(--color-text-muted)">Accede a tu espaicio personal de notas</p>
                 </header>
-
-                <form id="registerForm" method="POST" action="{{ route('register.store') }}" class="space-y-6" novalidate>
+                <form id="loginForm" method="POST" action="{{ route('login.store') }}" class="space-y-6" novalidate>
                     @csrf
 
                     <fieldset class="space-y-6">
-                        <legend class="sr-only">Formulario de registro</legend>
+                        <legend class="sr-only">Formulario de Incio de sesión</legend>
+                        @error('username')
+                            @if (session('lock_seconds'))
+                                <p id="lockMsg" class="mt-2 text-sm text-red-600"
+                                    data-seconds="{{ session('lock_seconds') }}">
+                                </p>
+                            @elseif ($errors->has('username') && $errors->first('username') !== 'LOCKED')
+                                <p class="mt-2 text-sm text-red-600" role="alert">
+                                    {{ $errors->first('username') }}
+                                </p>
+                            @endif
+                        @enderror
+                        @error('password')
+                            <p class="mt-2 text-sm text-red-600" role="alert">
+                                {{ $errors->first('password') }}
+                            </p>
+                        @enderror
                         <div>
                             <label for="username" class="block text-sm mb-2 text-(--color-text-muted)">
                                 Nombre de usuario
@@ -51,10 +65,6 @@
                                        text-(--color-text) outline-none transition
                                        focus:border-(--color-primary) focus:ring-4 focus:ring-blue-500/10" />
                             </div>
-
-                            @error('username')
-                                <p id="usernameError" class="mt-2 text-sm text-red-600" role="alert">{{ $message }}</p>
-                            @enderror
                         </div>
 
                         <div>
@@ -71,8 +81,9 @@
                                         stroke-linejoin="round" />
                                 </svg>
 
-                                <input id="password" type="password" name="password" required autocomplete="new-password"
-                                    placeholder="Ingresa tu contraseña" aria-describedby="passMsg"
+                                <input id="password" type="password" name="password" required
+                                    autocomplete="current-password" placeholder="Ingresa tu contraseña"
+                                    aria-describedby="passMsg"
                                     class="w-full pl-11 pr-24 py-3 rounded-lg bg-(--color-bg) border border-(--color-border)
                                        text-(--color-text) outline-none transition
                                        focus:border-(--color-primary) focus:ring-4 focus:ring-blue-500/10" />
@@ -86,52 +97,27 @@
 
                             <div id="passMsg" class="mt-2 text-sm text-red-600" aria-live="polite"></div>
                         </div>
-
-                        <div>
-                            <label for="password_confirmation" class="block text-sm mb-2 text-(--color-text-muted)">
-                                Confirmar contraseña
-                            </label>
-
-                            <div class="relative">
-                                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-(--color-text-muted)"
-                                    viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-                                    <path d="M7 11V8a5 5 0 0 1 10 0v3" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" />
-                                    <path d="M6 11h12v10H6V11Z" stroke="currentColor" stroke-width="2"
-                                        stroke-linejoin="round" />
-                                </svg>
-
-                                <input id="password_confirmation" type="password" name="password_confirmation" required
-                                    autocomplete="new-password" placeholder="Confirma tu contraseña"
-                                    aria-describedby="confirmMsg"
-                                    class="w-full pl-11 pr-24 py-3 rounded-lg bg-(--color-bg) border border-(--color-border)
-                                       text-(--color-text) outline-none transition
-                                       focus:border-(--color-primary) focus:ring-4 focus:ring-blue-500/10" />
-
-                                <button type="button" id="toggle2" aria-controls="password_confirmation"
-                                    aria-pressed="false"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium
-                                       text-(--color-primary) hover:underline">
-                                    Mostrar
-                                </button>
-                            </div>
-
-                            <div id="confirmMsg" class="mt-2 text-sm text-red-600" aria-live="polite"></div>
-                        </div>
-
+                        {{-- No se implemento en el diagrama aun, lo dejo para despues
+                        <label class="inline-flex items-center gap-2 text-sm text-(--color-text-muted)">
+                            <input type="checkbox" name="remember" value="1"
+                                class="h-4 w-4 rounded border border-(--color-border)"{{ old('remember') ? 'checked' : '' }}>
+                            Recordarme
+                        </label>
+                        --}}
                         <button type="submit"
                             class="w-full text-white py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg
                                bg-(--color-primary) hover:brightness-95 active:brightness-90">
-                            Crear cuenta
+                            Iniciar Sesion
                         </button>
 
                         <p class="text-center text-sm text-(--color-text-muted)">
-                            ¿Ya tienes cuenta?
-                            <a href="{{ url('/auth/login') }}" class="text-(--color-primary) hover:underline">Volver al
-                                inicio</a>
+                            ¿Aun no tienes cuenta?
+                            <a href="{{ url('/auth/register') }}"
+                                class="text-(--color-primary) hover:underline">Registrarse</a>
                         </p>
                     </fieldset>
                 </form>
+
 
             </div>
         </section>
@@ -139,5 +125,5 @@
 @endsection
 
 @push('scripts')
-    @vite('resources/js/pages/register.js')
+    @vite('resources/js/pages/login.js')
 @endpush
