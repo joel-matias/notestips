@@ -10,11 +10,10 @@
 </head>
 
 <body>
-    <main>
-        @yield('content')
-    </main>
 
-    @yield('script')
+    @yield('main-content')
+
+    @stack('scripts')
 </body>
 
 </html>
