@@ -1,4 +1,4 @@
-<form action="{{ route('notes') }}" method="POST">
+<form action="{{ route('notes.store') }}" method="POST">
     @csrf
     <label for="title">titulo</label>
     <input type="text" name="title" value="{{ old('title') }}">
