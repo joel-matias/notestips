@@ -20,6 +20,11 @@ class NotesController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'importance' => $request->importance ?? null,
+            'due_date' => $request->due_date ?? null,
+        ]);
+
         $validated = $request->validate(
             [
                 'title' => ['required', 'string', 'max:128'],
@@ -31,6 +36,7 @@ class NotesController extends Controller
                 'title.required' => 'El titulo es obligatorio',
                 'content.required' => 'El contenido es obligatorio',
                 'due_date.date_format' => 'La fecha debe venir como YYYY-MM-DD.',
+                'due_date.after_or_equal' => 'La fecha selecionada ya paso',
                 'importance.in' => 'Importancia no válida.',
             ]
         );
