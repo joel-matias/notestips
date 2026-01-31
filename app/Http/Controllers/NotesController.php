@@ -14,11 +14,15 @@ class NotesController extends Controller
             ->orderBy('updated_at', 'desc')
             ->select('id', 'title', 'importance', 'due_date', 'updated_at')->get();
 
-        if ($note_id != null) {
-            $selectedNote = Note::where('user_id', auth()->id())
-                ->select('id', 'title', 'content', 'importance', 'due_date', 'updated_at')
+        if ($note_id) {
+            $selectedNote = Note::select('id', 'user_id', 'title', 'content', 'importance', 'due_date', 'updated_at')
                 ->find($note_id);
-            $noteNotFound = $selectedNote === null;
+            if (! $selectedNote || auth()->user()->cannot('view', $selectedNote)) {
+                $selectedNote = null;
+                $noteNotFound = true;
+            } else {
+                $noteNotFound = false;
+            }
         } else {
             $noteNotFound = false;
             $selectedNote = null;
@@ -77,20 +81,20 @@ class NotesController extends Controller
         return redirect()->route('notes.index')->with('status', 'created');
     }
 
-    public function edit($note_id = null)
+    public function edit($note_id)
     {
 
         $notes = Note::where('user_id', auth()->id())
             ->orderBy('created_at', 'desc')
             ->select('id', 'title', 'content', 'importance', 'due_date', 'updated_at')->get();
 
-        if ($note_id) {
-            $selectedNote = Note::where('user_id', auth()->id())
-                ->select('id', 'title', 'content', 'importance', 'due_date')
-                ->find($note_id);
-            $noteNotFound = $selectedNote === null;
-        } else {
+        $selectedNote = Note::select('id', 'user_id', 'title', 'content', 'importance', 'due_date')
+            ->find($note_id);
+
+        if (! $selectedNote || auth()->user()->cannot('view', $selectedNote)) {
+            $noteNotFound = true;
             $selectedNote = null;
+        } else {
             $noteNotFound = false;
         }
 
@@ -121,7 +125,9 @@ class NotesController extends Controller
             ]
         );
 
-        $note = Note::where('user_id', auth()->id())->findOrFail($note_id);
+        $note = Note::find($note_id);
+
+        abort_if(! $note || auth()->user()->cannot('update', $note), 404);
 
         $note->update([
             'title' => $validated['title'],
@@ -133,9 +139,10 @@ class NotesController extends Controller
         return redirect()->route('notes.show', ['note_id' => $note->id])->with('status', 'updated');
     }
 
-    public function note_destroy($note_id)
+    public function destroy($note_id)
     {
-        $note = Note::Where('user_id', auth()->id())->findOrFail($note_id);
+        $note = Note::find($note_id);
+        abort_if(! $note || auth()->user()->cannot('delete', $note), 404);
         $note->delete();
 
         return redirect()->route('notes.index')->with('status', 'deleted');
