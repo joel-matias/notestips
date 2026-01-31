@@ -11,16 +11,16 @@ class NotesController extends Controller
     public function watch($note_id = null)
     {
         $notes = Note::where('user_id', auth()->id())
-            ->orderBy('created_at', 'desc')
+            ->orderBy('updated_at', 'desc')
             ->select('id', 'title', 'importance', 'due_date', 'updated_at')->get();
 
-        $noteNotFound = false;
         if ($note_id != null) {
             $selectedNote = Note::where('user_id', auth()->id())
                 ->select('id', 'title', 'content', 'importance', 'due_date', 'updated_at')
                 ->find($note_id);
+            $noteNotFound = $selectedNote === null;
         } else {
-            $noteNotFound = true;
+            $noteNotFound = false;
             $selectedNote = null;
         }
 
@@ -84,11 +84,11 @@ class NotesController extends Controller
             ->orderBy('created_at', 'desc')
             ->select('id', 'title', 'content', 'importance', 'due_date', 'updated_at')->get();
 
-        $noteNotFound = true;
         if ($note_id) {
             $selectedNote = Note::where('user_id', auth()->id())
                 ->select('id', 'title', 'content', 'importance', 'due_date')
                 ->find($note_id);
+            $noteNotFound = $selectedNote === null;
         } else {
             $selectedNote = null;
             $noteNotFound = false;

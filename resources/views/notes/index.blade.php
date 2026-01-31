@@ -12,13 +12,13 @@
             <div class="max-w-4xl mx-auto p-8">
                 @if ($noteNotFound)
                     <div class="h-full flex items-center justify-center text-slate-500">
-                        Selecciona una nota para ver su contenido
+                        Nota no encontrada
                     </div>
                 @elseif ($selectedNote)
                     @include('partials.notes.show')
                 @else
                     <div class="h-full flex items-center justify-center text-slate-500">
-                        Nota no encontrada
+                        Seleccione una nota para ver su contenido
                     </div>
                 @endisset
         </div>
