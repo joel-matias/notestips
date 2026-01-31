@@ -132,4 +132,12 @@ class NotesController extends Controller
 
         return redirect()->route('notes.show', ['note_id' => $note->id])->with('status', 'updated');
     }
+
+    public function note_destroy($note_id)
+    {
+        $note = Note::Where('user_id', auth()->id())->findOrFail($note_id);
+        $note->delete();
+
+        return redirect()->route('notes.index')->with('status', 'deleted');
+    }
 }

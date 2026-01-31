@@ -50,7 +50,7 @@
                 <x-icons.edit class="w-5 h-5" />
             </a>
 
-            <form method="POST" action="#{{--  --}}"
+            <form method="POST" action="{{ route('notes.destroy', $selectedNote->id) }}"
                 onsubmit="return confirm('¿Seguro que quieres eliminar esta nota?');">
                 @csrf
                 @method('DELETE')
