@@ -52,7 +52,7 @@ class NotesController extends Controller
                 'title' => ['required', 'string', 'max:128'],
                 'content' => ['required', 'string'],
                 'importance' => ['nullable', Rule::in(['baja', 'media', 'alta'])],
-                'due_date' => ['nullable', 'date_format:Y-m-d'], // ,'after_or_equal:today'],
+                'due_date' => ['nullable', 'date_format:Y-m-d'],
             ],
             [
                 'title.required' => 'El titulo es obligatorio',
@@ -114,7 +114,7 @@ class NotesController extends Controller
                 'title' => ['required', 'string', 'max:128'],
                 'content' => ['required', 'string'],
                 'importance' => ['nullable', Rule::in(['baja', 'media', 'alta'])],
-                'due_date' => ['nullable', 'date_format:Y-m-d'], // ,'after_or_equal:today'],
+                'due_date' => ['nullable', 'date_format:Y-m-d'],
             ],
             [
                 'title.required' => 'El titulo es obligatorio',
