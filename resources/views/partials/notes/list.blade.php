@@ -1,3 +1,5 @@
+@section('page', 'list')
+
 <nav aria-label="Lista de notas" class="h-full">
     <div class="sticky top-0 z-10 bg-white border-b border-slate-200 px-4 py-3">
         <div class="flex items-center justify-between gap-3">

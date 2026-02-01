@@ -2,6 +2,8 @@
 
 @section('title', 'Login | NoteTips')
 
+@section('page', 'login')
+
 @section('main-content')
     <main class="min-h-screen flex items-center justify-center p-4 bg-(--color-bg)">
         <section class="w-full max-w-md" aria-labelledby="page-title">
@@ -123,7 +125,3 @@
         </section>
     </main>
 @endsection
-
-@push('scripts')
-    @vite('resources/js/pages/login.js')
-@endpush

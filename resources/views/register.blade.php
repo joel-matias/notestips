@@ -1,5 +1,7 @@
 @extends('layout.app')
 
+@section('page', 'register')
+
 @section('title', 'Registro | NotesTips')
 
 @section('main-content')
@@ -137,7 +139,3 @@
         </section>
     </main>
 @endsection
-
-@push('scripts')
-    @vite('resources/js/pages/register.js')
-@endpush

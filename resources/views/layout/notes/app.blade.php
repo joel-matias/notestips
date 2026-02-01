@@ -8,7 +8,7 @@
     <title>@yield('title', 'NotesTips')</title>
 </head>
 
-<body class="bg-slate-50">
+<body class="bg-slate-50" data-page="@yield('page')">
 
     <div x-data="{ sidebarOpen: true }" class="h-screen flex overflow-hidden">
         <div class="shrink-0 bg-white border-r border-slate-200 overflow-hidden transition-all duration-300 ease-in-out"
@@ -44,7 +44,6 @@
         </div>
     </div>
     @stack('scripts')
-    @vite('resources/js/pages/list.js')
 </body>
 
 </html>
