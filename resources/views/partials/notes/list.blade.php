@@ -19,7 +19,7 @@
                 <ul role="list" class="divide-y divide-slate-200">
                     @foreach ($notes as $note)
                         @php
-                            $isActive = isset($selectedNoteId) && $selectedNoteId == $note->id;
+                            $isActive = isset($selectedNote->id) && $selectedNote->id == $note->id;
 
                             $importance = $note->importance;
                             $due_date = $note->due_date
@@ -47,11 +47,6 @@
                                 <h3 class="mb-1 truncate text-slate-900">
                                     {{ $note->title ?? 'Nota sin título' }}
                                 </h3>
-
-                                {{-- <p class="text-sm text-slate-500 line-clamp-2 mb-2">
-                                {{ $note->content ?? 'Sin contenido' }}
-                            </p> --}}
-
                                 <div class="flex items-center gap-2 text-xs mb-2">
                                     @if (!empty($importance))
                                         <span
