@@ -35,6 +35,7 @@
                     <input id="q" name="q" type="search" value="{{ request('q') }}" autocomplete="off"
                         placeholder="Search"
                         class="w-full h-full outline-none text-gray-500 bg-transparent placeholder-gray-500 text-sm">
+
                 </form>
             </header>
 
