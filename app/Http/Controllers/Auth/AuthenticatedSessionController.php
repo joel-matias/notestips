@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreUserRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -15,21 +16,10 @@ class AuthenticatedSessionController extends Controller
         return view('login');
     }
 
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
 
-        $credentials = $request->validate(
-            [
-                'username' => ['required', 'string', 'max:32'],
-                'password' => ['required'],
-            ],
-            [
-                'username.required' => 'El nombre de usuario es obligatorio.',
-                'username.max' => 'El nombre de usuario no puede tener más de 32 caracteres.',
-                'password.required' => 'La contraseña es obligatoria.',
-            ]
-        );
-
+        $credentials = $request->validated();
         $key = Str::lower($request->input('username')).'|'.$request->ip();
 
         if (RateLimiter::tooManyAttempts($key, 5)) {
