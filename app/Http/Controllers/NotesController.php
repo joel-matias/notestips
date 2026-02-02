@@ -36,10 +36,10 @@ class NotesController extends Controller
 
     public function create(Request $request)
     {
-
+        $selectedNote = null;
         $notes = $this->baseSearchQuery($request)->get();
 
-        return view('notes.create', compact('notes'));
+        return view('notes.create', compact('notes', 'selectedNote'));
     }
 
     public function store(Request $request)
@@ -149,8 +149,14 @@ class NotesController extends Controller
     }
 
     // funciones del controldor
+
     public function baseSearchQuery(Request $request)
     {
+        $importances = ['baja', 'media', 'alta'];
+        $importance = trim((string) $request->query('importance', ''));
+        if (! in_array($importance, $importances, true)) {
+            $importance = '';
+        }
         $q = trim((string) $request->query('q', ''));
 
         $notesQuery = Note::where('user_id', auth()->id())
@@ -162,6 +168,9 @@ class NotesController extends Controller
                 $sub->where('title', 'like', "%{$q}%")
                     ->orWhere('content', 'like', "%{$q}%");
             });
+        }
+        if ($importance !== '') {
+            $notesQuery->where('importance', $importance);
         }
 
         return $notesQuery;

@@ -19,7 +19,7 @@
                 <ul role="list" class="divide-y divide-slate-200">
                     @foreach ($notes as $note)
                         @php
-                            $isActive = isset($selectedNote->id) && $selectedNote->id == $note->id;
+                            $isActive = $selectedNote && $selectedNote->id == $note->id;
 
                             $importance = $note->importance;
                             $due_date = $note->due_date
@@ -40,7 +40,7 @@
                         @endphp
 
                         <li>
-                            <a href="{{ route('notes.show', ['note_id' => $note->id] + (request('q') ? ['q' => request('q')] : [])) }}"
+                            <a href="{{ route('notes.show', ['note_id' => $note->id] + (request('q') ? ['q' => request('q')] : []) + (request('importance') ? ['importance' => request('importance')] : [])) }}"
                                 class="block p-4 transition
                                {{ $isActive ? 'bg-blue-100' : 'bg-white hover:bg-slate-50' }}"
                                 @if ($isActive) aria-current="true" @endif>
