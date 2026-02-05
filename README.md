@@ -1,59 +1,91 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# NotesTips – A Private Notes Management Web App
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+NotesTips is a web application developed to manage your own notes in a private and secure way.
+It includes a login system with simple user registration system, a complete CRUD system for managing notes,
+and different filters for organizing them.
 
-## About Laravel
+## Live Demo:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+https://jmsweb.site/notes
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Proyect Goal
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+The objective of this project is to improve my skills in the Laravel framework and gain experience working with more complex systems.
+To achieve this, I built a functional MVP that includes multiple features, aiming to simulate a real-world notes management application.
 
-## Learning Laravel
+## Features (MVP)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- User authentication (register, login, logout)
+- Notes management (CRUD)
+- Search, filters, and sorting
+- User-based data isolation (ownership)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Out of Scope (Post-MVP)
 
-## Laravel Sponsors
+- Tags
+- Note sharing
+- Reminders
+- User roles
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Technologies Used
 
-### Premium Partners
+- Backend: PHP (Laravel)
+- Frontend: Blade, Tailwind CSS
+- Database: MySQL with Eloquent ORM (Dockerized for development)
+- Authentication: Laravel Breeze
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Running the Project
 
-## Contributing
+- Clone the repository and move to the project folder:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+git clone https://github.com/joel12-Sant/notestips.git
+cd notestips
+```
 
-## Code of Conduct
+- Install dependencies (Node.js and PHP):
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+composer install
+npm install
+```
 
-## Security Vulnerabilities
+- Configure environment variables:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+cp .env.example .env
+```
 
-## License
+- (Optional) Start the database using Docker (development only):
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+docker compose up -d
+```
+
+If you prefer to use your own database, update the database connection variables in the .env file.
+
+- Generate the application key
+
+```bash
+php artisan key:generate
+```
+
+- Run the migrations:
+
+```bash
+php artisan migrate
+```
+
+- Run the Vite development server (Tailwind/Assets):
+
+```bash
+npm run dev
+```
+
+- Start the Laravel development server
+
+```bash
+php artisan serve
+```
+
+- Open the app at: http://127.0.0.1:8000
