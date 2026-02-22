@@ -67,7 +67,7 @@
     </div>
 
     <article id="note-markdown-content"
-        data-toggle-task-url-template="{{ route('notes.tasks.toggle', ['note' => $note->id, 'taskIndex' => '__TASK_INDEX__']) }}"
+        data-toggle-task-url-template="{{ route('notes.tasks.toggle', ['note' => $note->id, 'taskIndex' => '__TASK_INDEX__'], false) }}"
         data-csrf-token="{{ csrf_token() }}"
         class="mt-8 text-slate-900 leading-relaxed wrap-break-word
             [&_h1]:text-3xl [&_h1]:font-semibold [&_h1]:mt-6 [&_h1]:mb-3
