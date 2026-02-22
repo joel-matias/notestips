@@ -110,16 +110,18 @@
 
                 try {
                     const response = await fetch(urlTemplate.replace('__TASK_INDEX__', taskIndex), {
-                        method: 'PATCH',
+                        method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
+                            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': csrfToken,
                         },
-                        body: JSON.stringify({
-                            completed: checked,
+                        body: new URLSearchParams({
+                            _method: 'PATCH',
+                            completed: checked ? '1' : '0',
                         }),
                     });
+
 
                     if (!response.ok) {
                         checkbox.checked = !checked;
