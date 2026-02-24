@@ -6,7 +6,7 @@ and different filters for organizing them.
 
 ## Live Demo:
 
-https://jmsweb.site/notes
+https://notestips.jmsweb.site
 
 ## Proyect Goal
 
