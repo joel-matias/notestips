@@ -19,10 +19,10 @@
     $dueDateLabel = $dueDate ? \Carbon\Carbon::parse($dueDate)->format('d/m/Y') : null;
 @endphp
 
-<div class="max-w-4xl mx-auto p-8">
-    <div class="flex items-start justify-between gap-4">
+<div class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div class="min-w-0">
-            <h1 class="text-4xl font-semibold text-slate-900">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-semibold text-slate-900 break-words">
                 {{ $note->title ?? 'Nota sin título' }}
             </h1>
 
@@ -48,7 +48,7 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-2 shrink-0">
+        <div class="flex items-center gap-2 shrink-0 self-start sm:self-auto">
             <a href="{{ route('notes.edit', $note->id) }}"
                 class="p-2 rounded-lg text-blue-600 hover:bg-blue-50 transition" aria-label="Editar">
                 <x-icons.edit class="w-5 h-5" />
@@ -69,10 +69,10 @@
     <article id="note-markdown-content"
         data-toggle-task-url-template="{{ route('notes.tasks.toggle', ['note' => $note->id, 'taskIndex' => '__TASK_INDEX__'], false) }}"
         data-csrf-token="{{ csrf_token() }}"
-        class="mt-8 text-slate-900 leading-relaxed wrap-break-word
-            [&_h1]:text-3xl [&_h1]:font-semibold [&_h1]:mt-6 [&_h1]:mb-3
-            [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-3
-            [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mt-5 [&_h3]:mb-2
+        class="mt-6 sm:mt-8 text-slate-900 leading-relaxed break-words
+            [&_h1]:text-2xl sm:[&_h1]:text-3xl [&_h1]:font-semibold [&_h1]:mt-6 [&_h1]:mb-3
+            [&_h2]:text-xl sm:[&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-3
+            [&_h3]:text-lg sm:[&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mt-5 [&_h3]:mb-2
             [&_p]:my-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-3
             [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-3
             [&_li]:my-1 [&_blockquote]:border-l-4 [&_blockquote]:border-slate-300

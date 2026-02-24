@@ -9,12 +9,20 @@
 </head>
 
 <body class="bg-slate-50" data-page="@yield('page')">
+    @php
+        $showNoteFiltersOnMobile = request()->routeIs('notes.index');
+        $searchVisibilityClass = $showNoteFiltersOnMobile ? '' : 'hidden lg:flex';
+        $filtersVisibilityClass = $showNoteFiltersOnMobile ? '' : 'hidden lg:block';
+    @endphp
 
-    <div x-data="{ sidebarOpen: true }" class="h-screen flex overflow-hidden">
-        <div class="shrink-0 bg-white border-r border-slate-200 overflow-hidden transition-all duration-300 ease-in-out"
+    <div x-data="{ sidebarOpen: window.innerWidth >= 1024 }" class="h-screen flex overflow-hidden">
+        <div class="fixed inset-y-0 left-0 z-40 shrink-0 bg-white border-r border-slate-200 overflow-hidden transition-all duration-300 ease-in-out lg:relative"
             :class="sidebarOpen ? 'w-72' : 'w-0'">
             @include('partials.notes.sidebar')
         </div>
+
+        <div x-show="sidebarOpen" class="fixed inset-0 z-30 bg-slate-900/40 lg:hidden" @click="sidebarOpen = false"
+            x-cloak></div>
 
         <div class="flex-1 flex flex-col min-w-0">
             <header class="h-14 bg-white border-b border-slate-200 flex items-center px-4 gap-3">
@@ -25,8 +33,8 @@
                 </button>
 
                 <form action="{{ route('notes.index') }}" method="GET"
-                    class="flex items-center border pl-4 gap-2 border-gray-500/40 h-11.5 rounded-2xl overflow-hidden w-full
-                         focus-within:ring-blue-600 focus-within:ring-2">
+                    class="{{ $searchVisibilityClass }} flex items-center border pl-4 gap-2 border-gray-500/40 h-11.5 rounded-2xl overflow-hidden w-full
+                             focus-within:ring-blue-600 focus-within:ring-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 30 30"
                         fill="#6B7280">
                         <path
@@ -36,58 +44,61 @@
                         placeholder="Search"
                         class="w-full h-full outline-none text-gray-500 bg-transparent placeholder-gray-500 text-sm">
                 </form>
-            </header>
-            <div id="filterChips" class="px-4 py-2 bg-white border-b border-slate-200 hidden">
 
+                @if (! $showNoteFiltersOnMobile)
+                    <div class="text-sm font-medium text-slate-700 lg:hidden">Edición de nota</div>
+                @endif
+            </header>
+            <div id="filterChips" class="{{ $filtersVisibilityClass }} px-4 py-2 bg-white border-b border-slate-200 hidden">
             </div>
 
-            <div class="mt-2 bg-white border-b border-slate-200">
-                <div class="px-4 py-3">
-                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                        <div>
-                            <label for="importance" class="block text-xs font-medium text-slate-600 mb-1">
-                                Importancia
-                            </label>
-                            <select id="importance" name="importance"
-                                class="w-full h-10 px-3 rounded-xl border bg-slate-50 text-slate-900 border-slate-200 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20">
-                                <option value="" @selected(request('importance') === '')>-- Todos --</option>
-                                <option value="none" @selected(request('importance') === 'none')>Sin importancia</option>
-                                <option value="alta" @selected(request('importance') === 'alta')>Alta</option>
-                                <option value="media" @selected(request('importance') === 'media')>Media</option>
-                                <option value="baja" @selected(request('importance') === 'baja')>Baja</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-medium text-slate-600 mb-1">
-                                Fecha
-                            </label>
-                            <div class="flex gap-2">
-                                <select id="due_date_mode" name="due_date_mode"
-                                    class="h-10 px-3 rounded-xl border bg-slate-50 text-slate-900 border-slate-200 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20">
-                                    <option value="" @selected(request('due_date_mode') === '')>Todas</option>
-                                    <option value="with" @selected(request('due_date_mode') === 'with')>Con fecha</option>
-                                    <option value="none" @selected(request('due_date_mode') === 'none')>Sin fecha</option>
-                                    <option value="exact" @selected(request('due_date_mode') === 'exact')>Fecha exacta</option>
-                                </select>
-
-                                <input id="due_date" type="date" name="due_date" value="{{ request('due_date') }}"
+            <div class="{{ $filtersVisibilityClass }} mt-2 bg-white border-b border-slate-200">
+                    <div class="px-4 py-3">
+                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                            <div>
+                                <label for="importance" class="block text-xs font-medium text-slate-600 mb-1">
+                                    Importancia
+                                </label>
+                                <select id="importance" name="importance"
                                     class="w-full h-10 px-3 rounded-xl border bg-slate-50 text-slate-900 border-slate-200 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20">
+                                    <option value="" @selected(request('importance') === '')>-- Todos --</option>
+                                    <option value="none" @selected(request('importance') === 'none')>Sin importancia</option>
+                                    <option value="alta" @selected(request('importance') === 'alta')>Alta</option>
+                                    <option value="media" @selected(request('importance') === 'media')>Media</option>
+                                    <option value="baja" @selected(request('importance') === 'baja')>Baja</option>
+                                </select>
                             </div>
-                        </div>
-                        <div>
-                            <label for="order_by" class="block text-xs font-medium text-slate-600 mb-1">Ordenar
-                                Por</label>
-                            <select name="order_by" id="order_by"
-                                class="h-10 px-3 rounded-xl border bg-slate-50 text-slate-900 border-slate-200 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20">
-                                <option value="" @selected(request('order_by') === '')>-- Por defecto --</option>
-                                <option value="created_at" @selected(request('order_by') === 'created_at')>Fecha de creación</option>
-                                <option value="due_date" @selected(request('order_by') === 'due_date')>Fecha de realización</option>
-                            </select>
+
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">
+                                    Fecha
+                                </label>
+                                <div class="flex flex-wrap sm:flex-nowrap gap-2">
+                                    <select id="due_date_mode" name="due_date_mode"
+                                        class="w-full sm:w-auto h-10 px-3 rounded-xl border bg-slate-50 text-slate-900 border-slate-200 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20">
+                                        <option value="" @selected(request('due_date_mode') === '')>Todas</option>
+                                        <option value="with" @selected(request('due_date_mode') === 'with')>Con fecha</option>
+                                        <option value="none" @selected(request('due_date_mode') === 'none')>Sin fecha</option>
+                                        <option value="exact" @selected(request('due_date_mode') === 'exact')>Fecha exacta</option>
+                                    </select>
+
+                                    <input id="due_date" type="date" name="due_date" value="{{ request('due_date') }}"
+                                        class="w-full h-10 px-3 rounded-xl border bg-slate-50 text-slate-900 border-slate-200 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="order_by" class="block text-xs font-medium text-slate-600 mb-1">Ordenar
+                                    Por</label>
+                                <select name="order_by" id="order_by"
+                                    class="w-full h-10 px-3 rounded-xl border bg-slate-50 text-slate-900 border-slate-200 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20">
+                                    <option value="" @selected(request('order_by') === '')>-- Por defecto --</option>
+                                    <option value="created_at" @selected(request('order_by') === 'created_at')>Fecha de creación</option>
+                                    <option value="due_date" @selected(request('order_by') === 'due_date')>Fecha de realización</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
             <main class="flex-1 overflow-hidden">
                 @yield('main-content')

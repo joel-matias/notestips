@@ -9,6 +9,22 @@ const chipsEl = document.getElementById('filterChips');
 
 if (notesList) {
   let t;
+  const calendarIcon = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" aria-hidden="true" class="w-4 h-4">
+      <rect x="16" y="20" width="96" height="92" rx="12" stroke="#B0B0B0" stroke-width="4"></rect>
+      <line x1="16" y1="44" x2="112" y2="44" stroke="#B0B0B0" stroke-width="4" stroke-linecap="round"></line>
+      <line x1="44" y1="14" x2="44" y2="28" stroke="#B0B0B0" stroke-width="4" stroke-linecap="round"></line>
+      <line x1="84" y1="14" x2="84" y2="28" stroke="#B0B0B0" stroke-width="4" stroke-linecap="round"></line>
+    </svg>
+  `;
+  const clockIcon = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" aria-hidden="true" class="w-4 h-4">
+      <circle cx="64" cy="64" r="44" stroke="#B0B0B0" stroke-width="4"></circle>
+      <line x1="64" y1="64" x2="64" y2="44" stroke="#B0B0B0" stroke-width="4" stroke-linecap="round"></line>
+      <line x1="64" y1="64" x2="82" y2="64" stroke="#B0B0B0" stroke-width="4" stroke-linecap="round"></line>
+      <circle cx="64" cy="64" r="3" fill="#B0B0B0"></circle>
+    </svg>
+  `;
 
   function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, (m) => ({
@@ -71,14 +87,14 @@ if (notesList) {
 
                   ${note.due_date_label ? `
                     <span class="inline-flex items-center gap-1 text-slate-500">
-                      <span aria-hidden="true">📅</span>
+                      <span aria-hidden="true">${calendarIcon}</span>
                       ${escapeHtml(note.due_date_label)}
                     </span>
                   ` : ''}
                 </div>
 
                 <div class="flex items-center gap-1 text-xs text-slate-500">
-                  <span aria-hidden="true">🕒</span>
+                  <span aria-hidden="true">${clockIcon}</span>
                   <span>${escapeHtml(note.last_edited_label ?? 'Hace un momento')}</span>
                 </div>
               </a>

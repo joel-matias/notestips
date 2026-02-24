@@ -1,11 +1,11 @@
-    <form action="{{ route('notes.store') }}" method="POST" class="max-w-4xl mx-auto p-8">
+    <form action="{{ route('notes.store') }}" method="POST" class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
         @csrf
         <div class="space-y-4">
             <div>
                 <label for="title" class="sr-only">Título de la nota</label>
                 <input id="title" type="text" name="title" value="{{ old('title', 'Titulo de Ejemplo') }}"
                     placeholder="Título de la nota"
-                    class="w-full text-3xl px-4 py-2 rounded-lg border bg-slate-50 text-slate-900 transition
+                    class="w-full text-2xl sm:text-3xl px-4 py-2 rounded-lg border bg-slate-50 text-slate-900 transition
                         border-slate-200
                         focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20
                         @error('title') border-red-400 focus:border-red-500 focus:ring-red-500/20 @enderror"
@@ -66,7 +66,7 @@
                 @enderror
             </div>
 
-            <div class="flex gap-3">
+            <div class="flex flex-wrap gap-3">
                 <button type="submit"
                     class="px-6 py-2 rounded-lg transition text-white bg-green-600 hover:bg-green-700
                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2">

@@ -40,7 +40,13 @@
                         @endphp
 
                         <li>
-                            <a href="{{ route('notes.show', ['note' => $s_note->id] + (request('q') ? ['q' => request('q')] : []) + (request('importance') ? ['importance' => request('importance')] : [])) }}"
+                            @php
+                                $noteLinkQuery = array_filter(
+                                    request()->only(['q', 'importance', 'due_date_mode', 'due_date', 'order_by']),
+                                    fn($value) => filled($value)
+                                );
+                            @endphp
+                            <a href="{{ route('notes.show', ['note' => $s_note->id] + $noteLinkQuery) }}"
                                 class="block p-4 transition
                                {{ $isActive ? 'bg-blue-100' : 'bg-white hover:bg-slate-50' }}"
                                 @if ($isActive) aria-current="true" @endif>

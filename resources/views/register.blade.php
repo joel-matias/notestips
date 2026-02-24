@@ -7,7 +7,7 @@
 @section('main-content')
     <main class="min-h-screen flex items-center justify-center p-4 bg-(--color-bg)">
         <section class="w-full max-w-md" aria-labelledby="page-title">
-            <div class="rounded-2xl shadow-lg p-8 bg-(--color-surface) border border-(--color-border)">
+            <div class="rounded-2xl shadow-lg p-6 sm:p-8 bg-(--color-surface) border border-(--color-border)">
 
                 <header class="text-center mb-8">
                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 bg-(--color-primary)"

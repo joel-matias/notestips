@@ -5,7 +5,7 @@
 @section('main-content')
     <main class="min-h-screen bg-(--color-bg) text-(--color-text)">
         <header class="border-b border-(--color-border) bg-(--color-surface)">
-            <div class="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
+            <div class="mx-auto max-w-6xl px-4 py-4 flex flex-wrap items-center justify-between gap-3">
                 <a href="{{ route('home') }}" class="flex items-center gap-2 text-xl font-semibold tracking-tight">
                     <svg class="w-7 h-7 text-(--color-primary)" viewBox="0 0 24 24" fill="none" aria-hidden="true"
                         focusable="false">
@@ -19,7 +19,7 @@
                     <span>NotesTips</span>
                 </a>
 
-                <nav class="flex items-center gap-3 text-sm">
+                <nav class="flex flex-wrap items-center gap-2 sm:gap-3 text-sm">
                     @auth
                         <a href="{{ route('notes.index') }}"
                             class="px-4 py-2 rounded-lg text-white bg-(--color-primary) hover:brightness-95">
