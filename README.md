@@ -124,10 +124,3 @@ composer test
 ```
 
 Current coverage includes authentication flows, ownership/authorization checks, notes CRUD, search/filter behavior, and task-toggle edge cases.
-
-## Suggested Roadmap
-
-- Note tagging.
-- Note sharing between users.
-- Reminders.
-- Advanced roles and permissions.
