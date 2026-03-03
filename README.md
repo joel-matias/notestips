@@ -1,91 +1,133 @@
-# NotesTips – A Private Notes Management Web App
+# NotesTips
 
-NotesTips is a web application developed to manage your own notes in a private and secure way.
-It includes a login system with simple user registration system, a complete CRUD system for managing notes,
-and different filters for organizing them.
+Private notes web application built with Laravel. It allows users to sign up, log in, create/edit/delete notes, and organize them with search, filters, and sorting.
 
-## Live Demo:
+Demo: https://notestips.jmsweb.site
 
-https://notestips.jmsweb.site
+## Features
 
-## Proyect Goal
+- Full authentication flow: register, login, logout, and `remember me`.
+- Brute-force protection on login using `RateLimiter` (temporary lock after multiple failed attempts).
+- Per-user notes CRUD (ownership isolation through policy authorization).
+- Optional `importance` metadata with values `baja`, `media`, and `alta`.
+- Optional `due_date` metadata for scheduling.
+- Title/content search with combinable filters (importance, date, sorting).
+- Safe Markdown rendering (unsafe HTML disabled).
+- Interactive checklist support: toggle tasks (`- [ ]`, `- [x]`) directly from the note detail view.
+- Responsive UI built with Tailwind CSS + Alpine.js.
 
-The objective of this project is to improve my skills in the Laravel framework and gain experience working with more complex systems.
-To achieve this, I built a functional MVP that includes multiple features, aiming to simulate a real-world notes management application.
+## Technical Stack
 
-## Features (MVP)
+- PHP 8.2
+- Laravel 12
+- MySQL 8
+- Blade + Tailwind CSS 4 + Alpine.js
+- Vite
+- Pest (test suite)
 
-- User authentication (register, login, logout)
-- Notes management (CRUD)
-- Search, filters, and sorting
-- User-based data isolation (ownership)
+## Architecture Overview
 
-## Out of Scope (Post-MVP)
+- `routes/web.php`: web routes for home, authentication, and notes.
+- `app/Http/Controllers/NotesController.php`: core notes logic, search, and task toggling.
+- `app/Policies/NotePolicy.php`: ownership-based authorization.
+- `app/Services/RegisteredUserService.php`: user creation and welcome note bootstrap.
+- `resources/views/`: Blade views (landing, auth, notes dashboard).
+- `resources/js/pages/list.js`: dynamic filters and list refresh via `/notes/search`.
 
-- Tags
-- Note sharing
-- Reminders
-- User roles
+## Requirements
 
-## Technologies Used
+- PHP >= 8.2
+- Composer
+- Node.js >= 18 and npm
+- MySQL 8 (local or via Docker)
 
-- Backend: PHP (Laravel)
-- Frontend: Blade, Tailwind CSS
-- Database: MySQL with Eloquent ORM (Dockerized for development)
-- Authentication: Laravel Breeze
+## Installation
 
-## Running the Project
-
-- Clone the repository and move to the project folder:
+### 1) Clone repository
 
 ```bash
 git clone https://github.com/joel12-Sant/notestips.git
 cd notestips
 ```
 
-- Install dependencies (Node.js and PHP):
+### 2) Configure environment
+
+```bash
+cp .env.example .env
+```
+
+### 3) Install dependencies
 
 ```bash
 composer install
 npm install
 ```
 
-- Configure environment variables:
+### 4) Database
 
-```bash
-cp .env.example .env
-```
-
-- (Optional) Start the database using Docker (development only):
+Optional with Docker (includes MySQL and phpMyAdmin):
 
 ```bash
 docker compose up -d
 ```
 
-If you prefer to use your own database, update the database connection variables in the .env file.
+Default `.env.example` database settings:
 
-- Generate the application key
+- `DB_HOST=127.0.0.1`
+- `DB_PORT=3316`
+- `DB_DATABASE=gestor_de_notas`
+- `DB_USERNAME=root`
+- `DB_PASSWORD=root`
+
+### 5) Initialize the application
 
 ```bash
 php artisan key:generate
-```
-
-- Run the migrations:
-
-```bash
 php artisan migrate
 ```
 
-- Run the Vite development server (Tailwind/Assets):
+### 6) Start development environment
 
-```bash
-npm run dev
-```
-
-- Start the Laravel development server
+In two terminals:
 
 ```bash
 php artisan serve
+npm run dev
 ```
 
-- Open the app at: http://127.0.0.1:8000
+Open: http://127.0.0.1:8000
+
+## Quick Setup Script
+
+You can also use the Composer setup script:
+
+```bash
+composer run setup
+```
+
+This command installs dependencies, prepares `.env`, generates `APP_KEY`, runs migrations, and builds assets.
+
+## Usage Flow
+
+1. Create an account (`/auth/register`).
+2. Log in (`/auth/login`).
+3. Create notes at `/notes/create`.
+4. Filter and search from the notes dashboard.
+5. Open a note to view rendered Markdown and toggle tasks.
+
+## Testing
+
+Run the test suite:
+
+```bash
+composer test
+```
+
+Current coverage includes authentication flows, ownership/authorization checks, notes CRUD, search/filter behavior, and task-toggle edge cases.
+
+## Suggested Roadmap
+
+- Note tagging.
+- Note sharing between users.
+- Reminders.
+- Advanced roles and permissions.
