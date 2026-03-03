@@ -19,7 +19,8 @@ class AuthenticatedSessionController extends Controller
     public function store(StoreUserRequest $request)
     {
 
-        $credentials = $request->validated();
+        $credentials = $request->safe()->only(['username', 'password']);
+        $remember = $request->boolean('remember');
         $key = Str::lower($request->input('username')).'|'.$request->ip();
 
         if (RateLimiter::tooManyAttempts($key, 5)) {
@@ -30,7 +31,7 @@ class AuthenticatedSessionController extends Controller
                 ->onlyInput('username');
         }
 
-        if (! Auth::attempt($credentials)) {// , $request->boolean('remember'))) { //remember aun no implementado
+        if (! Auth::attempt($credentials, $remember)) {
             RateLimiter::hit($key, 60);
 
             return back()->withErrors([

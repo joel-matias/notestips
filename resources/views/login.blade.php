@@ -99,13 +99,11 @@
 
                             <div id="passMsg" class="mt-2 text-sm text-red-600" aria-live="polite"></div>
                         </div>
-                        {{-- No se implemento en el diagrama aun, lo dejo para despues
                         <label class="inline-flex items-center gap-2 text-sm text-(--color-text-muted)">
                             <input type="checkbox" name="remember" value="1"
                                 class="h-4 w-4 rounded border border-(--color-border)"{{ old('remember') ? 'checked' : '' }}>
-                            Recordarme
+                            Mantener sesión iniciada
                         </label>
-                        --}}
                         <button type="submit"
                             class="w-full text-white py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg
                                bg-(--color-primary) hover:brightness-95 active:brightness-90">

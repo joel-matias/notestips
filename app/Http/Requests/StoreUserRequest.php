@@ -25,6 +25,7 @@ class StoreUserRequest extends FormRequest
 
             'username' => ['required', 'string', 'max:32'],
             'password' => ['required'],
+            'remember' => ['nullable', 'boolean'],
 
         ];
     }
