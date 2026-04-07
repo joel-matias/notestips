@@ -13,7 +13,7 @@
 @endsection
 
 @section('main-content')
-    <div class="h-full overflow-auto" style="background: var(--color-bg);">
+    <div class="h-full overflow-hidden" style="background: var(--color-bg);">
         @if ($note)
             @include('partials.notes.edit-form')
         @else
