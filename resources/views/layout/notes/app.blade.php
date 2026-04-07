@@ -1,111 +1,130 @@
 <!doctype html>
 <html lang="es">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <title>@yield('title', 'NotesTips')</title>
 </head>
+<body class="antialiased" style="background: var(--color-bg);" data-page="@yield('page')">
 
-<body class="bg-slate-50" data-page="@yield('page')">
-    @php
-        $showNoteFiltersOnMobile = request()->routeIs('notes.index');
-        $searchVisibilityClass = $showNoteFiltersOnMobile ? '' : 'hidden lg:flex';
-        $filtersVisibilityClass = $showNoteFiltersOnMobile ? '' : 'hidden lg:block';
-    @endphp
+    <div
+        x-data="{
+            sidebarOpen: JSON.parse(localStorage.getItem('nt_sidebar') ?? JSON.stringify(window.innerWidth >= 1024)),
+            toggleSidebar() {
+                this.sidebarOpen = !this.sidebarOpen;
+                localStorage.setItem('nt_sidebar', JSON.stringify(this.sidebarOpen));
+            },
+            closeSidebarOnMobile() {
+                if (window.innerWidth < 1024) {
+                    this.sidebarOpen = false;
+                    localStorage.setItem('nt_sidebar', 'false');
+                }
+            }
+        }"
+        @close-sidebar.window="closeSidebarOnMobile()"
+        class="h-screen flex overflow-hidden">
 
-    <div x-data="{ sidebarOpen: window.innerWidth >= 1024 }" class="h-screen flex overflow-hidden">
-        <div class="fixed inset-y-0 left-0 z-40 shrink-0 bg-white border-r border-slate-200 overflow-hidden transition-all duration-300 ease-in-out lg:relative"
-            :class="sidebarOpen ? 'w-72' : 'w-0'">
+        {{-- ── Sidebar ── --}}
+        <div
+            class="fixed inset-y-0 left-0 z-40 shrink-0 flex flex-col overflow-hidden transition-all duration-300 ease-in-out lg:relative"
+            :class="sidebarOpen ? 'w-80' : 'w-0'"
+            style="background: white; border-right: 1px solid var(--color-border);">
             @include('partials.notes.sidebar')
         </div>
 
-        <div x-show="sidebarOpen" class="fixed inset-0 z-30 bg-slate-900/40 lg:hidden" @click="sidebarOpen = false"
-            x-cloak></div>
+        {{-- Overlay móvil --}}
+        <div x-show="sidebarOpen" x-cloak
+            class="fixed inset-0 z-30 lg:hidden"
+            style="background: rgba(17,24,39,0.4); backdrop-filter: blur(2px);"
+            @click="toggleSidebar()">
+        </div>
 
-        <div class="flex-1 flex flex-col min-w-0">
-            <header class="h-14 bg-white border-b border-slate-200 flex items-center px-4 gap-3">
-                <button type="button" @click="sidebarOpen = !sidebarOpen"
-                    class="p-2 rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-                    aria-label="Abrir/cerrar sidebar">
-                    <span class="text-lg" x-text="sidebarOpen ? '✕' : '☰'"></span>
+        {{-- ── Área principal ── --}}
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+            {{-- Header mínimo --}}
+            <header class="h-12 shrink-0 flex items-center px-3 gap-2"
+                style="background: white; border-bottom: 1px solid var(--color-border);">
+
+                <button type="button"
+                    @click="toggleSidebar()"
+                    class="p-2 rounded-lg transition-fast focus-visible:outline-none shrink-0"
+                    style="color: var(--color-text-muted);"
+                    onmouseover="this.style.background='var(--color-border)';"
+                    onmouseout="this.style.background='transparent';"
+                    aria-label="Toggle menú">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
                 </button>
 
-                <form action="{{ route('notes.index') }}" method="GET"
-                    class="{{ $searchVisibilityClass }} flex items-center border pl-4 gap-2 border-gray-500/40 h-11.5 rounded-2xl overflow-hidden w-full
-                             focus-within:ring-blue-600 focus-within:ring-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 30 30"
-                        fill="#6B7280">
-                        <path
-                            d="M13 3C7.489 3 3 7.489 3 13s4.489 10 10 10a9.95 9.95 0 0 0 6.322-2.264l5.971 5.971a1 1 0 1 0 1.414-1.414l-5.97-5.97A9.95 9.95 0 0 0 23 13c0-5.511-4.489-10-10-10m0 2c4.43 0 8 3.57 8 8s-3.57 8-8 8-8-3.57-8-8 3.57-8 8-8" />
-                    </svg>
-                    <input id="q" name="q" type="search" value="{{ request('q') }}" autocomplete="off"
-                        placeholder="Search"
-                        class="w-full h-full outline-none text-gray-500 bg-transparent placeholder-gray-500 text-sm">
-                </form>
-
-                @if (! $showNoteFiltersOnMobile)
-                    <div class="text-sm font-medium text-slate-700 lg:hidden">Edición de nota</div>
-                @endif
-            </header>
-            <div id="filterChips" class="{{ $filtersVisibilityClass }} px-4 py-2 bg-white border-b border-slate-200 hidden">
-            </div>
-
-            <div class="{{ $filtersVisibilityClass }} mt-2 bg-white border-b border-slate-200">
-                    <div class="px-4 py-3">
-                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                            <div>
-                                <label for="importance" class="block text-xs font-medium text-slate-600 mb-1">
-                                    Importancia
-                                </label>
-                                <select id="importance" name="importance"
-                                    class="w-full h-10 px-3 rounded-xl border bg-slate-50 text-slate-900 border-slate-200 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20">
-                                    <option value="" @selected(request('importance') === '')>-- Todos --</option>
-                                    <option value="none" @selected(request('importance') === 'none')>Sin importancia</option>
-                                    <option value="alta" @selected(request('importance') === 'alta')>Alta</option>
-                                    <option value="media" @selected(request('importance') === 'media')>Media</option>
-                                    <option value="baja" @selected(request('importance') === 'baja')>Baja</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 mb-1">
-                                    Fecha
-                                </label>
-                                <div class="flex flex-wrap sm:flex-nowrap gap-2">
-                                    <select id="due_date_mode" name="due_date_mode"
-                                        class="w-full sm:w-auto h-10 px-3 rounded-xl border bg-slate-50 text-slate-900 border-slate-200 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20">
-                                        <option value="" @selected(request('due_date_mode') === '')>Todas</option>
-                                        <option value="with" @selected(request('due_date_mode') === 'with')>Con fecha</option>
-                                        <option value="none" @selected(request('due_date_mode') === 'none')>Sin fecha</option>
-                                        <option value="exact" @selected(request('due_date_mode') === 'exact')>Fecha exacta</option>
-                                    </select>
-
-                                    <input id="due_date" type="date" name="due_date" value="{{ request('due_date') }}"
-                                        class="w-full h-10 px-3 rounded-xl border bg-slate-50 text-slate-900 border-slate-200 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20">
-                                </div>
-                            </div>
-                            <div>
-                                <label for="order_by" class="block text-xs font-medium text-slate-600 mb-1">Ordenar
-                                    Por</label>
-                                <select name="order_by" id="order_by"
-                                    class="w-full h-10 px-3 rounded-xl border bg-slate-50 text-slate-900 border-slate-200 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20">
-                                    <option value="" @selected(request('order_by') === '')>-- Por defecto --</option>
-                                    <option value="created_at" @selected(request('order_by') === 'created_at')>Fecha de creación</option>
-                                    <option value="due_date" @selected(request('order_by') === 'due_date')>Fecha de realización</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+                {{-- Breadcrumb / título de página --}}
+                <div class="flex-1 min-w-0">
+                    @yield('header-title')
                 </div>
+
+                {{-- Acciones de header (si la vista las define) --}}
+                @yield('header-actions')
+            </header>
 
             <main class="flex-1 overflow-hidden">
                 @yield('main-content')
             </main>
         </div>
     </div>
-    @stack('scripts')
-</body>
 
+    {{-- FAB nueva nota (móvil) --}}
+    @if (!request()->routeIs('notes.create') && !request()->routeIs('notes.edit'))
+    <a href="{{ route('notes.create') }}"
+        class="fixed bottom-5 right-5 z-50 lg:hidden flex items-center justify-center w-14 h-14 rounded-2xl text-white shadow-lg transition-fast"
+        style="background: var(--color-primary);"
+        onmouseover="this.style.transform='scale(1.08)';"
+        onmouseout="this.style.transform='scale(1)';"
+        aria-label="Nueva nota">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+    </a>
+    @endif
+
+    {{-- Toast container --}}
+    <div id="toast-container"></div>
+
+    @if (session('status'))
+        <script>window.__flashStatus = @json(session('status'));</script>
+    @endif
+
+    @stack('scripts')
+
+    <script>
+    (() => {
+        const messages = {
+            created: { type: 'success', text: 'Nota creada correctamente' },
+            updated: { type: 'success', text: 'Cambios guardados' },
+            deleted: { type: 'info',    text: 'Nota eliminada' },
+        };
+
+        function showToast(type, text) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            const icons = {
+                success: `<svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>`,
+                error:   `<svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"/></svg>`,
+                info:    `<svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>`,
+            };
+            toast.innerHTML = `${icons[type] || ''}<span>${text}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.add('toast-hiding'); setTimeout(() => toast.remove(), 220); }, 3200);
+        }
+
+        const status = window.__flashStatus;
+        if (status && messages[status]) setTimeout(() => showToast(messages[status].type, messages[status].text), 80);
+        window.showToast = showToast;
+    })();
+    </script>
+</body>
 </html>
