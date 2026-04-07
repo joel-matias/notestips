@@ -21,7 +21,7 @@ class NotesController extends Controller
         return view('notes.index', compact('notes', 'note', 'noteNotFound'));
     }
 
-    public function show(Note $note, Request $request): View|JsonResponse
+    public function show(Note $note, Request $request): JsonResponse|RedirectResponse
     {
         if ($request->expectsJson()) {
             abort_if(! $note || auth()->user()->cannot('view', $note), 404);
@@ -46,16 +46,12 @@ class NotesController extends Controller
             ]);
         }
 
-        $notes = $this->baseSearchQuery($request)->get();
-
+        // HTML requests go directly to the editor
         if (! $note || auth()->user()->cannot('view', $note)) {
-            $note = null;
-            $noteNotFound = true;
-        } else {
-            $noteNotFound = false;
+            abort(404);
         }
 
-        return view('notes.index', compact('notes', 'note', 'noteNotFound'));
+        return redirect()->route('notes.edit', $note->id);
     }
 
     public function preview(Request $request): JsonResponse
@@ -166,13 +162,17 @@ class NotesController extends Controller
             'due_date' => $validated['due_date'] ?? null,
         ]);
 
-        return redirect()->route('notes.show', ['note' => $note->id])->with('status', 'updated');
+        return redirect()->route('notes.edit', ['note' => $note->id])->with('status', 'updated');
     }
 
-    public function destroy(Note $note): RedirectResponse
+    public function destroy(Note $note, Request $request): RedirectResponse|JsonResponse
     {
         abort_if(! $note || auth()->user()->cannot('delete', $note), 404);
         $note->delete();
+
+        if ($request->expectsJson()) {
+            return response()->json(['status' => 'ok']);
+        }
 
         return redirect()->route('notes.index')->with('status', 'deleted');
     }
