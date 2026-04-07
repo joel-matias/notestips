@@ -21,8 +21,31 @@ class NotesController extends Controller
         return view('notes.index', compact('notes', 'note', 'noteNotFound'));
     }
 
-    public function show(Note $note, Request $request): View
+    public function show(Note $note, Request $request): View|JsonResponse
     {
+        if ($request->expectsJson()) {
+            abort_if(! $note || auth()->user()->cannot('view', $note), 404);
+
+            $dueDate = $note->due_date;
+
+            return response()->json([
+                'id'                       => $note->id,
+                'title'                    => $note->title,
+                'importance'               => $note->importance,
+                'due_date_label'           => $dueDate ? \Carbon\Carbon::parse($dueDate)->format('d/m/Y') : null,
+                'is_overdue'               => $dueDate && \Carbon\Carbon::parse($dueDate)->isPast(),
+                'updated_at_label'         => $note->updated_at?->diffForHumans(),
+                'content_html'             => \Illuminate\Support\Str::markdown($note->content ?? '', [
+                    'html_input'         => 'strip',
+                    'allow_unsafe_links' => false,
+                ]),
+                'edit_url'                      => route('notes.edit', $note->id),
+                'delete_url'                    => route('notes.destroy', $note->id),
+                'toggle_task_url_template'      => route('notes.tasks.toggle', ['note' => $note->id, 'taskIndex' => '__TASK_INDEX__'], false),
+                'csrf_token'                    => csrf_token(),
+            ]);
+        }
+
         $notes = $this->baseSearchQuery($request)->get();
 
         if (! $note || auth()->user()->cannot('view', $note)) {
@@ -33,6 +56,17 @@ class NotesController extends Controller
         }
 
         return view('notes.index', compact('notes', 'note', 'noteNotFound'));
+    }
+
+    public function preview(Request $request): JsonResponse
+    {
+        $content = $request->input('content', '');
+        $html    = \Illuminate\Support\Str::markdown($content, [
+            'html_input'         => 'strip',
+            'allow_unsafe_links' => false,
+        ]);
+
+        return response()->json(['html' => $html]);
     }
 
     public function create(Request $request): View
@@ -204,7 +238,7 @@ class NotesController extends Controller
         }
 
         $notesQuery = Note::where('user_id', auth()->id())
-            ->select('id', 'title', 'importance', 'due_date', 'updated_at', 'created_at');
+            ->select('id', 'title', 'content', 'importance', 'due_date', 'updated_at', 'created_at');
 
         if ($q !== '') {
             $notesQuery->where(function ($sub) use ($q) {
@@ -253,11 +287,19 @@ class NotesController extends Controller
             };
 
             return [
-                'id' => $note->id,
-                'title' => $note->title,
-                'importance' => $importance,
-                'badge_classes' => $badgeClasses,
-                'due_date_label' => $note->due_date ? \Carbon\Carbon::parse($note->due_date)->format('d/m/Y') : null,
+                'id'               => $note->id,
+                'title'            => $note->title,
+                'importance'       => $importance,
+                'badge_classes'    => $badgeClasses,
+                'excerpt'          => $note->content
+                    ? \Illuminate\Support\Str::limit(
+                        preg_replace('/\s+/', ' ', strip_tags(
+                            \Illuminate\Support\Str::markdown($note->content, ['html_input' => 'strip', 'allow_unsafe_links' => false])
+                        )),
+                        90
+                      )
+                    : null,
+                'due_date_label'   => $note->due_date ? \Carbon\Carbon::parse($note->due_date)->format('d/m/Y') : null,
                 'last_edited_label' => optional($note->updated_at)->diffForHumans(),
             ];
         });

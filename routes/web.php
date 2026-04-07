@@ -20,6 +20,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/notes/{note}', [NotesController::class, 'show'])->name('notes.show');
     Route::post('/notes', [NotesController::class, 'store'])->name('notes.store');
 
+    Route::post('/notes/preview', [NotesController::class, 'preview'])->name('notes.preview');
     Route::post('/auth/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
 
