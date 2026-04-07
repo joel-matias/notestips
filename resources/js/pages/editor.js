@@ -19,7 +19,7 @@ function inlineRender(text) {
         // Tachado
         .replace(/~~(.+?)~~/gs, '<del>$1</del>')
         // Links
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
 }
 
 function renderMarkdown(md) {
@@ -42,7 +42,7 @@ function renderMarkdown(md) {
                 code += lines[i] + '\n';
                 i++;
             }
-            html += `<pre><code>${esc(code.trimEnd())}</code></pre>`;
+            html += `<pre><code${lang ? ` class="language-${esc(lang)}"` : ''}>${esc(code.trimEnd())}</code></pre>`;
             i++;
             continue;
         }
@@ -83,7 +83,11 @@ function renderMarkdown(md) {
                 const cb = l.match(/^[-*+] \[( |x)\] (.*)$/i);
                 if (cb) {
                     const chk = cb[1].toLowerCase() === 'x';
-                    items += `<li style="list-style:none"><input type="checkbox" ${chk ? 'checked' : ''} disabled style="accent-color:var(--color-primary);margin-right:0.4em;"> ${inlineRender(cb[2])}</li>`;
+                    items += `<li style="list-style:none;display:flex;align-items:baseline;gap:0.5em;">
+                        <input type="checkbox" ${chk ? 'checked' : ''} disabled
+                            style="accent-color:var(--color-primary);margin-top:0.2em;flex-shrink:0;">
+                        <span style="${chk ? 'text-decoration:line-through;opacity:0.6;' : ''}">${inlineRender(cb[2])}</span>
+                    </li>`;
                 } else {
                     items += `<li>${inlineRender(l.replace(/^[-*+] /, ''))}</li>`;
                 }
@@ -104,6 +108,20 @@ function renderMarkdown(md) {
             continue;
         }
 
+        // Tabla simple (GFM)
+        if (line.includes('|') && i + 1 < lines.length && /^[\s|:-]+$/.test(lines[i + 1])) {
+            const headerCells = line.split('|').filter(c => c.trim() !== '').map(c => `<th>${inlineRender(c.trim())}</th>`).join('');
+            i += 2; // skip header + separator
+            let rows = '';
+            while (i < lines.length && lines[i].includes('|')) {
+                const cells = lines[i].split('|').filter(c => c.trim() !== '').map(c => `<td>${inlineRender(c.trim())}</td>`).join('');
+                rows += `<tr>${cells}</tr>`;
+                i++;
+            }
+            html += `<table><thead><tr>${headerCells}</tr></thead><tbody>${rows}</tbody></table>`;
+            continue;
+        }
+
         // Párrafo — junta líneas hasta que encuentra elemento de bloque o línea vacía
         let para = '';
         while (i < lines.length) {
@@ -113,10 +131,10 @@ function renderMarkdown(md) {
             if (/^#{1,6} /.test(t) || l.startsWith('```') || l.startsWith('> ')
                 || /^[-*+] /.test(l) || /^\d+\. /.test(l)
                 || /^[-*_]{3,}$/.test(t)) break;
-            para += (para ? ' ' : '') + l;
+            para += (para ? '\n' : '') + l;
             i++;
         }
-        if (para.trim()) html += `<p>${inlineRender(para)}</p>`;
+        if (para.trim()) html += `<p>${inlineRender(para.replace(/\n/g, ' '))}</p>`;
     }
 
     return html;
@@ -155,18 +173,41 @@ class BlockEditor {
 
     _syncHidden() {
         this.hidden.value = this.blocks.join('\n\n');
-        // Contador de palabras / chars en el header
+        // Contador de palabras / chars en el toolbar
         const text  = this.hidden.value;
         const words = text.trim() ? text.trim().split(/\s+/).length : 0;
         const wc = document.getElementById('word-count');
         const cc = document.getElementById('char-count');
         if (wc) wc.textContent = words;
         if (cc) cc.textContent = text.length;
+        // Actualizar preview en vivo
+        this._updateLivePreview();
+    }
+
+    _updateLivePreview() {
+        const previewContent = document.getElementById('editor-preview-content');
+        if (!previewContent) return;
+
+        const content = this.hidden.value;
+        if (content.trim()) {
+            previewContent.innerHTML = renderMarkdown(content);
+        } else {
+            previewContent.innerHTML = '<p class="block-placeholder">Empieza a escribir para ver la vista previa...</p>';
+        }
+
+        // Sincronizar título en el panel de preview
+        const titleInput = document.getElementById('title');
+        const previewTitle = document.getElementById('preview-note-title');
+        if (titleInput && previewTitle) {
+            previewTitle.textContent = titleInput.value.trim() || 'Sin título';
+        }
     }
 
     _init() {
         this._renderAll();
         this._bindEvents();
+        // Mostrar preview inicial
+        this._updateLivePreview();
     }
 
     _renderAll() {
@@ -208,10 +249,18 @@ class BlockEditor {
         const ta       = document.createElement('textarea');
         ta.className   = 'block-textarea';
         ta.value       = markdown;
-        ta.placeholder = index === 0 ? 'Escribe el título o el primer párrafo...' : 'Escribe en Markdown...';
+        ta.placeholder = index === 0
+            ? 'Escribe el título o el primer párrafo...'
+            : 'Escribe en Markdown... (# Título, **negrita**, - [ ] tarea, > cita)';
 
         div.innerHTML = '';
         div.appendChild(ta);
+
+        // Preview en vivo del bloque activo
+        const previewDiv = document.createElement('div');
+        previewDiv.className = 'block-live-preview prose-note';
+        previewDiv.style.display = 'none';
+        div.appendChild(previewDiv);
 
         // Exponer el textarea activo (para la toolbar)
         window.__activeBlockTA = ta;
@@ -221,16 +270,26 @@ class BlockEditor {
             ta.style.height = Math.max(28, ta.scrollHeight) + 'px';
         };
 
+        const updateBlockPreview = () => {
+            const val = ta.value;
+            if (val.trim()) {
+                previewDiv.style.display = '';
+                previewDiv.innerHTML = renderMarkdown(val);
+            } else {
+                previewDiv.style.display = 'none';
+            }
+        };
+
         ta.addEventListener('input', () => {
             this.blocks[index] = ta.value;
             this._syncHidden();
             resize();
+            updateBlockPreview();
         });
 
         ta.addEventListener('keydown', e => this._handleKey(e, index, ta));
 
         ta.addEventListener('blur', () => {
-            // Pequeño delay para que un clic en otro bloque no cause doble deactivate
             setTimeout(() => {
                 if (this._active !== index) return;
                 this.deactivate(index);
@@ -238,8 +297,9 @@ class BlockEditor {
         });
 
         resize();
+        // Mostrar preview inicial del bloque
+        updateBlockPreview();
         ta.focus();
-        // Mover cursor al final
         ta.setSelectionRange(ta.value.length, ta.value.length);
     }
 
@@ -304,7 +364,6 @@ class BlockEditor {
     _rerender() {
         this._active = null;
         window.__activeBlockTA = null;
-        // Quitar bloques existentes (no el end area)
         [...this.container.querySelectorAll('.block-wrapper')].forEach(el => el.remove());
         this.blocks.forEach((b, i) => this._makeBlockEl(b, i));
     }
@@ -366,6 +425,40 @@ class BlockEditor {
     }
 }
 
+// ── Gestión de modo (Split / Editor / Preview) ────────────────────
+const EDITOR_MODE_KEY = 'nt_editor_mode';
+
+function applyEditorMode(mode) {
+    const editorPane  = document.getElementById('editor-pane');
+    const previewPane = document.getElementById('preview-pane');
+    const toolbarRow  = document.getElementById('editor-toolbar-row');
+    if (!editorPane || !previewPane) return;
+
+    // En móvil siempre editor
+    const effectiveMode = window.innerWidth < 640 ? 'editor' : mode;
+
+    if (effectiveMode === 'split') {
+        editorPane.classList.remove('hidden');
+        previewPane.classList.remove('hidden');
+        if (toolbarRow) toolbarRow.style.display = '';
+    } else if (effectiveMode === 'preview') {
+        editorPane.classList.add('hidden');
+        previewPane.classList.remove('hidden');
+        if (toolbarRow) toolbarRow.style.display = 'none';
+    } else {
+        editorPane.classList.remove('hidden');
+        previewPane.classList.add('hidden');
+        if (toolbarRow) toolbarRow.style.display = '';
+    }
+
+    // Marcar botón activo
+    document.querySelectorAll('[data-editor-mode]').forEach(btn => {
+        btn.classList.toggle('is-active', btn.dataset.editorMode === mode);
+    });
+
+    localStorage.setItem(EDITOR_MODE_KEY, mode);
+}
+
 // ── Inicialización ────────────────────────────────────────────────
 (() => {
     const form   = document.querySelector('form[data-editor]');
@@ -378,26 +471,43 @@ class BlockEditor {
     const editor = new BlockEditor(edDiv, hidden);
     window.__blockEditor = editor;
 
+    // ── Modo split view ──────────────────────────────────────────
+    const savedMode = localStorage.getItem(EDITOR_MODE_KEY) || 'split';
+    applyEditorMode(savedMode);
+
+    document.querySelectorAll('[data-editor-mode]').forEach(btn => {
+        btn.addEventListener('click', () => applyEditorMode(btn.dataset.editorMode));
+    });
+
+    // Título sincronizado con el preview en vivo
+    const titleInput = document.getElementById('title');
+    titleInput?.addEventListener('input', () => {
+        const previewTitle = document.getElementById('preview-note-title');
+        if (previewTitle) {
+            previewTitle.textContent = titleInput.value.trim() || 'Sin título';
+        }
+    });
+
     // ── Toolbar ──────────────────────────────────────────────────
     document.addEventListener('click', e => {
         const btn = e.target.closest('[data-action]');
         if (!btn) return;
 
         const a = btn.dataset.action;
-        if (a === 'bold')       editor.wrapSelection('**', '**');
-        else if (a === 'italic')     editor.wrapSelection('*', '*');
-        else if (a === 'code')       editor.wrapSelection('`', '`');
-        else if (a === 'h1')         editor.prefixLine('# ');
-        else if (a === 'h2')         editor.prefixLine('## ');
-        else if (a === 'h3')         editor.prefixLine('### ');
-        else if (a === 'ul')         editor.prefixLine('- ');
-        else if (a === 'ol')         editor.prefixLine('1. ');
-        else if (a === 'checkbox')   editor.prefixLine('- [ ] ');
-        else if (a === 'quote')      editor.prefixLine('> ');
+        if (a === 'bold')        editor.wrapSelection('**', '**');
+        else if (a === 'italic') editor.wrapSelection('*', '*');
+        else if (a === 'code')   editor.wrapSelection('`', '`');
+        else if (a === 'h1')     editor.prefixLine('# ');
+        else if (a === 'h2')     editor.prefixLine('## ');
+        else if (a === 'h3')     editor.prefixLine('### ');
+        else if (a === 'ul')     editor.prefixLine('- ');
+        else if (a === 'ol')     editor.prefixLine('1. ');
+        else if (a === 'checkbox') editor.prefixLine('- [ ] ');
+        else if (a === 'quote')  editor.prefixLine('> ');
         else if (a === 'codeblock') {
             const ta = window.__activeBlockTA;
             if (!ta) return;
-            const s = ta.selectionStart;
+            const s   = ta.selectionStart;
             const sel = ta.value.slice(s, ta.selectionEnd) || 'código';
             const ins = '```\n' + sel + '\n```';
             ta.value = ta.value.slice(0, s) + ins + ta.value.slice(ta.selectionEnd);
