@@ -237,6 +237,18 @@
   min-height: 1.7em;
 }
 
+/* Preview del bloque activo (mini vista en tiempo real) */
+.block-live-preview {
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px dashed var(--color-border);
+  background: var(--color-bg);
+  opacity: 0.85;
+  pointer-events: none;
+  font-size: 0.875rem;
+}
+
 /* Área vacía al final del editor */
 .editor-end-area {
   min-height: 120px;
@@ -254,3 +266,118 @@
 /* Spinner de carga */
 @keyframes spin { to { transform: rotate(360deg); } }
 .animate-spin { animation: spin 0.75s linear infinite; }
+
+/* ── Editor split view ───────────────────────────────────────── */
+.editor-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  height: 2rem;
+  padding: 0 0.625rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+.editor-mode-btn:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+.editor-mode-btn.is-active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* ── Note menu (tres puntos) ─────────────────────────────────── */
+.note-item {
+  position: relative;
+}
+
+.note-menu-btn {
+  position: absolute;
+  top: 50%;
+  right: 0.375rem;
+  transform: translateY(-50%);
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-subtle);
+  opacity: 0;
+  transition: opacity 0.12s, background 0.12s, color 0.12s;
+  z-index: 5;
+}
+
+.note-item:hover .note-menu-btn,
+.note-menu-btn.is-open,
+.note-menu-btn:focus-visible {
+  opacity: 1;
+}
+
+.note-menu-btn:hover,
+.note-menu-btn.is-open {
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+/* On touch devices always show the button */
+@media (hover: none) {
+  .note-menu-btn { opacity: 1; }
+}
+
+.note-menu-dropdown {
+  position: absolute;
+  right: 0.25rem;
+  top: calc(100% - 0.25rem);
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06);
+  min-width: 10rem;
+  z-index: 200;
+  overflow: hidden;
+  animation: menu-in 0.12s ease-out;
+}
+
+@keyframes menu-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.note-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--color-text);
+  transition: background 0.1s;
+  line-height: 1.4;
+}
+.note-menu-item:hover {
+  background: var(--color-bg);
+}
+.note-menu-item.danger {
+  color: var(--color-error);
+}
+.note-menu-item.danger:hover {
+  background: var(--color-error-soft);
+}
