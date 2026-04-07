@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,12 +7,19 @@
     <title>@yield('title', 'NotesTips')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-
-<body data-page="@yield('page')">
+<body data-page="@yield('page')" class="antialiased">
 
     @yield('main-content')
 
+    {{-- Toast notifications --}}
+    <div id="toast-container"></div>
+
+    @if (session('status'))
+        <script>
+            window.__flashStatus = @json(session('status'));
+        </script>
+    @endif
+
     @stack('scripts')
 </body>
-
 </html>
