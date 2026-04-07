@@ -99,6 +99,36 @@
     @stack('scripts')
 
     <script>
+    // ── Menú de tres puntos (sidebar) ─────────────────────────────
+    (() => {
+        function closeAllNoteMenus() {
+            document.querySelectorAll('.note-menu-dropdown').forEach(d => d.classList.add('hidden'));
+            document.querySelectorAll('.note-menu-btn.is-open').forEach(b => b.classList.remove('is-open'));
+        }
+
+        document.addEventListener('click', e => {
+            const menuBtn = e.target.closest('.note-menu-btn[data-menu-id]');
+            if (menuBtn) {
+                e.stopPropagation();
+                const id = menuBtn.dataset.menuId;
+                const dropdown = document.getElementById('note-menu-' + id);
+                const wasOpen = !dropdown?.classList.contains('hidden');
+                closeAllNoteMenus();
+                if (!wasOpen) {
+                    dropdown?.classList.remove('hidden');
+                    menuBtn.classList.add('is-open');
+                }
+                return;
+            }
+            // Cierra al hacer clic fuera
+            if (document.querySelector('.note-menu-dropdown:not(.hidden)')) {
+                closeAllNoteMenus();
+            }
+        }, true);
+    })();
+    </script>
+
+    <script>
     (() => {
         const messages = {
             created: { type: 'success', text: 'Nota creada correctamente' },
